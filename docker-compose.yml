@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+
+ 
+  # nextjs-app:
+  #   image: node:18-alpine
+  #   working_dir: /app
+  #   ports:
+  #     - "3001:3001"
+  #   volumes:
+  #     - ./frontend:/app
+  #   command:
+  #     - "npm"
+  #     - "run"
+  #     - "dev"
+  #     - --debug
+
+
+  rasa:
+    image: rasa/rasa:latest
+    working_dir: /app
+    ports:
+      - 5005:5005
+    volumes:
+      - ./rasaengine:/app
+    command:
+      - run
+      - --enable-api
+      - -m
+      - models
+      - --cors
+      - "*"
+      - http://localhost:3000
+      - --debug
+
+  # train:
+  #   image: rasa/rasa:latest
+  #   volumes:
+  #     - ./rasaengine:/app
+  #   depends_on:
+  #     - rasa
+  #   entrypoint: "rasa"
+  #   command:
+  #     - train
+
+  action-server:
+    image: rasa/rasa:latest
+    working_dir: /app
+    ports:
+      - 5055:5055
+    volumes:
+      - ./rosaengine/actions:/app/actions
+    entrypoint: "rasa"
+    command:
+      - run
+      - --enable-api
+      - --cors
+      - "*"
+      - "http://localhost:3000"
+      - actions
+      - --debug
