@@ -7,17 +7,18 @@ WORKDIR /app
 # Copy the rest of the application
 COPY . /app
 
-# Install dependencies and set up Rasa
+# Install dependencies
 RUN pip install --upgrade pip && \
-    pip install virtualenv && \
-    virtualenv venv && \
-    . venv/bin/activate && \
-    pip install -r requirements.txt && \
-    cd /app/rasaengine && \
-    rasa init --no-prompt
+    pip install -r requirements.txt
 
-# Set entrypoint for interactive shell
-ENTRYPOINT ["rasa"]
+# Copy setup script
+COPY setup.sh /app/setup.sh
+
+# Make the script executable
+RUN chmod +x /app/setup.sh
+
+# Set entrypoint to the setup script
+ENTRYPOINT ["/app/setup.sh"]
 
 # Expose the ports needed by your services
 EXPOSE 8000 5005 5055
