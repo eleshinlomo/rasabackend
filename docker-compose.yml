@@ -31,18 +31,24 @@ services:
       - models
       - --cors
       - "*"
-      - http://localhost:3000
       - --debug
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  # train:
-  #   image: rasa/rasa:latest
-  #   volumes:
-  #     - ./rasaengine:/app
-  #   depends_on:
-  #     - rasa
-  #   entrypoint: "rasa"
-  #   command:
-  #     - train
+  train:
+    image: rasa/rasa:latest
+    volumes:
+      - ./rasaengine:/app
+    entrypoint: "rasa"
+    command:
+      - train
+    depends_on:
+      rasa:
+        condition: service_healthy
+
 
   action-server:
     image: rasa/rasa:latest
@@ -57,6 +63,8 @@ services:
       - --enable-api
       - --cors
       - "*"
-      - "http://localhost:3000"
       - actions
       - --debug
+    depends_on:
+      rasa:
+        condition: service_healthy
