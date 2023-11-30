@@ -22,5 +22,5 @@ EXPOSE 8000 5005 5055
 
 
 # Run 'rasa init' inside the 'rasaengine' folder
-RUN && cd /app/rasaengine \
+RUN cd /app/rasaengine \
     && rasa init --no-prompt
