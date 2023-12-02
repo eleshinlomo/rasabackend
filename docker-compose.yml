@@ -2,36 +2,14 @@ version: '3'
 
 services:
 
- 
-  # nextjs-app:
-  #   image: node:18-alpine
-  #   working_dir: /app
-  #   ports:
-  #     - "3001:3001"
-  #   volumes:
-  #     - ./frontend:/app
-  #   command:
-  #     - "npm"
-  #     - "run"
-  #     - "dev"
-  #     - --debug
-
-
   rasa:
-    image: rasa/rasa:latest
-    working_dir: /app
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 5005:5005
     volumes:
       - ./rasaengine:/app
-    command:
-      - run
-      - --enable-api
-      - -m
-      - models
-      - --cors
-      - "*"
-      - --debug
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5005/"]
       interval: 30s
@@ -39,7 +17,9 @@ services:
       retries: 5
 
   train:
-    image: rasa/rasa:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./rasaengine:/app
     entrypoint: "rasa"
@@ -51,20 +31,14 @@ services:
 
 
   action-server:
-    image: rasa/rasa:latest
-    working_dir: /app
+    image: rasa/rasa-sdk:3.6.2
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 5055:5055
     volumes:
-      - ./rosaengine/actions:/app/actions
-    entrypoint: "rasa"
-    command:
-      - run
-      - --enable-api
-      - --cors
-      - "*"
-      - actions
-      - --debug
-    depends_on:
-      rasa:
-        condition: service_healthy
+      - ./rasaengine/actions:/app/actions
+    
+   
+    

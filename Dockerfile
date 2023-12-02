@@ -1,24 +1,24 @@
-# Stage 2: Build the final image
-FROM python:3.8-slim
+# Use the official Rasa base image
+FROM rasa/rasa:3.6.14-full
 
-# Set the working directory to /app
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the rest of the application
+# Copy the local Rasa project files into the container
 COPY . /app
 
-# Install dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
-
-# Copy setup script
-COPY setup.sh /app/setup.sh
-
-# Make the script executable
-RUN chmod +x /app/setup.sh
-
-# Set entrypoint to the setup script
-ENTRYPOINT ["/app/setup.sh"]
-
-# Expose the ports needed by your services
 EXPOSE 8000 5005 5055
+
+# For example, if you have additional Python dependencies, you can use requirements.txt
+COPY requirements.txt /app/
+
+USER root
+
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+
+
+ENTRYPOINT ["rasa"]
+
+CMD ["run", "--enable-api", "-m", "model", "--cors", "*", "--debug"]
